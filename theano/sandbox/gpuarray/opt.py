@@ -37,6 +37,9 @@ from theano.sandbox.gpuarray.subtensor import (GpuIncSubtensor, GpuSubtensor,
                                                GpuAdvancedIncSubtensor1_dev20)
 from theano.sandbox.gpuarray.type import GpuArrayConstant
 
+from theano.sandbox.gpuarray.blas import (GpuDownsampleFactorMax, 
+                                          GpuDownsampleFactorMaxGrad)
+
 gpu_optimizer = EquilibriumDB()
 gpu_cut_copies = EquilibriumDB()
 
@@ -676,3 +679,14 @@ optdb.register('gpua_scanOp_make_inplace',
                'fast_run',
                'inplace',
                'scan')
+
+@register_opt()
+@op_lifter([GpuDownsampleFactorMax])
+def local_gpua_downsample_factor_max(node):
+    return GpuDownsampleFactorMax(node.op.ds, node.op.ignore_border)
+
+
+@register_opt()
+@op_lifter([GpuDownsampleFactorMaxGrad])
+def local_gpua_downsample_factor_max_grad(node):
+    return GpuDownsampleFactorMaxGrad(node.op.ds, node.op.ignore_border)
